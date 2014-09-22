@@ -206,7 +206,12 @@ var _ = {};
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+    if (iterator === undefined) {
+      return !_.every(collection)
+    }
+    return !_.every(collection, function(item) {
+      return !iterator(item);
+    })
   };
 
 
@@ -229,11 +234,29 @@ var _ = {};
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(Array.prototype.slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(Array.prototype.slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          if (!(prop in obj)) {
+            obj[prop] = source[prop];
+          }
+        }
+      }
+    });
+    return obj;
   };
 
 
@@ -275,7 +298,19 @@ var _ = {};
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
+    var memo = {};
+    var slice = Array.prototype.slice;
+    return function() {
+      var args = slice.call(arguments);
+
+      if (args in memo) {
+        return memo[args];
+      }
+      else {
+        return (memo[args] = func.apply(this, args));
+      }
+    };
+  }
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -284,6 +319,8 @@ var _ = {};
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);
+    return setTimeout(function(){ return func.apply(null, args)}, wait);
   };
 
 
