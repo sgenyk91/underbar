@@ -335,6 +335,16 @@ var _ = {};
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var arrayCopy = _.uniq(array);
+    var randomArray = [];
+    for (var i = 0; i < arrayCopy.length; i++) {
+      if (Math.random() < 0.50) {
+        randomArray.push(arrayCopy[i]);
+      } else{
+        randomArray.unshift(arrayCopy[i]);
+      }
+    }
+    return randomArray;
   };
 
 
@@ -349,6 +359,7 @@ var _ = {};
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -357,6 +368,16 @@ var _ = {};
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var greatestLength = Math.max.apply(this, _.pluck(arguments, 'length'));
+    var result = [];
+    for (var i = 0; i < greatestLength; i++) {
+      var newArray = [];
+      for (var j = 0; j < greatestLength; j++) {
+        newArray.push(arguments[j][i]);
+      }
+      result.push(newArray);
+    }
+    return result;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -364,16 +385,38 @@ var _ = {};
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var result = [];
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
-  _.intersection = function() {
+  _.intersection = function() { //use contains and every
+    var newArray = [];
+    for (var i = 0; i < arguments[0].length; i++) {
+      var target = arguments[0][i];
+      if (_.every(arguments, function(item) {
+        return _.contains(item, target);
+      })) {
+        newArray.push(target);
+      }
+    }
+    return newArray;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var newArray = [];
+    var args = Array.prototype.slice.call(arguments, 1);
+    for (var i = 0; i < array.length; i++) {
+      var target = array[i];
+      if (!(_.some(args, function(item) {
+        return _.contains(item, target);
+      }))) {
+        newArray.push(target);
+      }
+    }
+    return newArray;
   };
 
 
@@ -387,6 +430,18 @@ var _ = {};
   //
   // See the Underbar readme for details.
   _.throttle = function(func, wait) {
+    var result;
+    var called = 0;
+
+    return function() {
+      var time = Date.now();
+      if (time - called >= wait) {
+        called = time;
+        result = func.apply(this, arguments);
+      }
+
+      return result;
+    };
   };
 
 }).call(this);
