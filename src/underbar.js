@@ -359,7 +359,29 @@ var _ = {};
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
-
+    if (typeof(iterator) === 'string') {
+      return collection.sort(function(x, y) {
+        if (x[iterator] > y[iterator]) {
+          return 1;
+        } else if (x[iterator] < y[iterator]) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+    } else if (typeof(iterator) === 'function') {
+      return collection.sort(function(x, y) {
+        if (iterator(x) > iterator(y)) {
+          return 1;
+        } else if (iterator(x) < iterator(y)) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+    } else {
+      return collection.sort();
+    }
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -385,8 +407,17 @@ var _ = {};
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
-    var result = [];
+    result === undefined ? result = [] : null;
+    for (var i = 0; i < nestedArray.length; i++) {
+      if (Array.isArray(nestedArray[i])) {
+        result.concat(_.flatten(nestedArray[i], result));
+      } else {
+        result.push(nestedArray[i]);
+      }
+    }
+    return result;
   };
+
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
